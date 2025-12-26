@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Move Pokemon - Gen 1 hingga Terbaru</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #FFCB05;
+            text-shadow: 0 0 10px rgba(255, 203, 5, 0.5);
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #3D7DCA;
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .filters {
+            background: rgba(30, 40, 70, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(61, 125, 202, 0.3);
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            color: #FFCB05;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        select, input {
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid #3D7DCA;
+            background: rgba(20, 30, 60, 0.9);
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #FFCB05;
+            box-shadow: 0 0 10px rgba(255, 203, 5, 0.5);
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 40, 70, 0.8);
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .moves-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .move-card {
+            background: linear-gradient(145deg, rgba(40, 55, 100, 0.9), rgba(30, 40, 70, 0.9));
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(61, 125, 202, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .move-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-color: #FFCB05;
+        }
+
+        .move-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .move-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        .move-gen {
+            background: #FFCB05;
+            color: #1a1a2e;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .move-type {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .move-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .detail-item {
+            background: rgba(20, 30, 60, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #3D7DCA;
+        }
+
+        .detail-label {
+            color: #FFCB05;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .move-description {
+            font-style: italic;
+            color: #b0b0b0;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            line-height: 1.5;
+        }
+
+        .type-normal { background: #A8A878; }
+        .type-fire { background: #F08030; }
+        .type-water { background: #6890F0; }
+        .type-electric { background: #F8D030; color: #000; }
+        .type-grass { background: #78C850; }
+        .type-ice { background: #98D8D8; color: #000; }
+        .type-fighting { background: #C03028; }
+        .type-poison { background: #A040A0; }
+        .type-ground { background: #E0C068; color: #000; }
+        .type-flying { background: #A890F0; }
+        .type-psychic { background: #F85888; }
+        .type-bug { background: #A8B820; }
+        .type-rock { background: #B8A038; }
+        .type-ghost { background: #705898; }
+        .type-dragon { background: #7038F8; }
+        .type-dark { background: #705848; }
+        .type-steel { background: #B8B8D0; color: #000; }
+        .type-fairy { background: #EE99AC; color: #000; }
+
+        .category-physical { background: #C03028; }
+        .category-special { background: #6890F0; }
+        .category-status { background: #68A090; }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px;
+            font-size: 1.2rem;
+            color: #FFCB05;
+        }
+
+        @media (max-width: 768px) {
+            .moves-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filters {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #3D7DCA;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(61, 125, 202, 0.3);
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Pokemon Move Database</h1>
+            <p class="subtitle">Koleksi lengkap skill/serangan Pokemon dari Generasi 1 hingga terbaru</p>
+        </header>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="genFilter">Generasi:</label>
+                <select id="genFilter">
+                    <option value="all">Semua Generasi</option>
+                    <option value="1">Gen 1 (Kanto)</option>
+                    <option value="2">Gen 2 (Johto)</option>
+                    <option value="3">Gen 3 (Hoenn)</option>
+                    <option value="4">Gen 4 (Sinnoh)</option>
+                    <option value="5">Gen 5 (Unova)</option>
+                    <option value="6">Gen 6 (Kalos)</option>
+                    <option value="7">Gen 7 (Alola)</option>
+                    <option value="8">Gen 8 (Galar)</option>
+                    <option value="9">Gen 9 (Paldea)</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="typeFilter">Tipe Pokemon:</label>
+                <select id="typeFilter">
+                    <option value="all">Semua Tipe</option>
+                    <option value="normal">Normal</option>
+                    <option value="fire">Fire</option>
+                    <option value="water">Water</option>
+                    <option value="electric">Electric</option>
+                    <option value="grass">Grass</option>
+                    <option value="ice">Ice</option>
+                    <option value="fighting">Fighting</option>
+                    <option value="poison">Poison</option>
+                    <option value="ground">Ground</option>
+                    <option value="flying">Flying</option>
+                    <option value="psychic">Psychic</option>
+                    <option value="bug">Bug</option>
+                    <option value="rock">Rock</option>
+                    <option value="ghost">Ghost</option>
+                    <option value="dragon">Dragon</option>
+                    <option value="dark">Dark</option>
+                    <option value="steel">Steel</option>
+                    <option value="fairy">Fairy</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="categoryFilter">Kategori Move:</label>
+                <select id="categoryFilter">
+                    <option value="all">Semua Kategori</option>
+                    <option value="physical">Physical</option>
+                    <option value="special">Special</option>
+                    <option value="status">Status</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="searchFilter">Cari Move:</label>
+                <input type="text" id="searchFilter" placeholder="Nama atau deskripsi move...">
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div>Total Move: <span id="totalMoves">0</span></div>
+            <div>Move Ditampilkan: <span id="displayedMoves">0</span></div>
+        </div>
+
+        <div class="moves-grid" id="movesContainer">
+            <!-- Move cards akan diisi oleh JavaScript -->
+        </div>
+
+        <footer>
+            <p>Pokemon Move Database &copy; 2024 | Data mencakup Generasi 1-9</p>
+        </footer>
+    </div>
+
+    <script>
+        // Database Pokemon Moves
+        const pokemonMoves = [
+            // ===== GENERASI 1 =====
+            {
+                id: 1,
+                name: "Tackle",
+                type: "normal",
+                category: "physical",
+                power: 40,
+                accuracy: 100,
+                pp: 35,
+                description: "A physical attack in which the user charges and slams into the target with its whole body.",
+                generation: 1,
+                target: "single-opponent"
+            },
+            {
+                id: 2,
+                name: "Ember",
+                type: "fire",
+                category: "special",
+                power: 40,
+                accuracy: 100,
+                pp: 25,
+                description: "The target is attacked with small flames. This may also leave the target with a burn.",
+                generation: 1,
+                target: "single-opponent"
+            },
+            {
+                id: 3,
+                name: "Water Gun",
+                type: "water",
+                category: "special",
+                power: 40,
+                accuracy: 100,
+                pp: 25,
+                description: "The target is blasted with a forceful shot of water.",
+                generation: 1,
+                target: "single-opponent"
+            },
+            {
+                id: 4,
+                name: "Thunderbolt",
+                type: "electric",
+                category: "special",
+                power: 90,
+                accuracy: 100,
+                pp: 15,
+                description: "A strong electric blast crashes down on the target. This may also leave the target with paralysis.",
+                generation: 1,
+                target: "single-opponent"
+            },
+            {
+                id: 5,
+                name: "Razor Leaf",
+                type: "grass",
+                category: "physical",
+                power: 55,
+                accuracy: 95,
+                pp: 25,
+                description: "Sharp-edged leaves are launched to slash at opposing Pokémon. Critical hits land more easily.",
+                generation: 1,
+                target: "all-opponents"
+            },
+            {
+                id: 6,
+                name: "Ice Beam",
+                type: "ice",
+                category: "special",
+                power: 90,
+                accuracy: 100,
+                pp: 10,
+                description: "The target is struck with an icy-cold beam of energy. This may also leave the target frozen.",
+                generation: 1,
+                target: "single-opponent"
+            },
+            {
+                id: 7,
+                name: "Fire Blast",
+                type: "fire",
+                category: "special",
+                power: 110,
+                accuracy: 85,
+                pp: 5,
+                description: "The target is attacked with an intense blast of all-consuming fire. This may also leave the target with a burn.",
+                generation: 1,
+                target: "single-opponent"
+            },
+            {
+                id: 8,
+                name: "Hydro Pump",
+                type: "water",
+                category: "special",
+                power: 110,
+                accuracy: 80,
+                pp: 5,
+                description: "The target is blasted by a huge volume of water launched under great pressure.",
+                generation: 1,
+                target: "single-opponent"
+            },
+
+            // ===== GENERASI 2 =====
+            {
+                id: 9,
+                name: "Steel Wing",
+                type: "steel",
+                category: "physical",
+                power: 70,
+                accuracy: 90,
+                pp: 25,
+                description: "The target is hit with wings of steel. This may also raise the user's Defense stat.",
+                generation: 2,
+                target: "single-opponent"
+            },
+            {
+                id: 10,
+                name: "Dark Pulse",
+                type: "dark",
+                category: "special",
+                power: 80,
+                accuracy: 100,
+                pp: 15,
+                description: "The user releases a horrible aura imbued with dark thoughts. This may also make the target flinch.",
+                generation: 2,
+                target: "single-opponent"
+            },
+            {
+                id: 11,
+                name: "Dragon Breath",
+                type: "dragon",
+                category: "special",
+                power: 60,
+                accuracy: 100,
+                pp: 20,
+                description: "The user exhales a mighty gust that inflicts damage. This may also leave the target with paralysis.",
+                generation: 2,
+                target: "single-opponent"
+            },
+
+            // ===== GENERASI 3 =====
+            {
+                id: 12,
+                name: "Blaze Kick",
+                type: "fire",
+                category: "physical",
+                power: 85,
+                accuracy: 90,
+                pp: 10,
+                description: "The user launches a kick with a high critical-hit ratio. This may also leave the target with a burn.",
+                generation: 3,
+                target: "single-opponent"
+            },
+            {
+                id: 13,
+                name: "Water Pulse",
+                type: "water",
+                category: "special",
+                power: 60,
+                accuracy: 100,
+                pp: 20,
+                description: "The user attacks the target with a pulsing blast of water. This may also confuse the target.",
+                generation: 3,
+                target: "single-opponent"
+            },
+            {
+                id: 14,
+                name: "Leaf Blade",
+                type: "grass",
+                category: "physical",
+                power: 90,
+                accuracy: 100,
+                pp: 15,
+                description: "The user handles a sharp leaf like a sword and attacks by cutting its target. Critical hits land more easily.",
+                generation: 3,
+                target: "single-opponent"
+            },
+
+            // ===== GENERASI 4 =====
+            {
+                id: 15,
+                name: "Power Gem",
+                type: "rock",
+                category: "special",
+                power: 80,
+                accuracy: 100,
+                pp: 20,
+                description: "The user attacks with a ray of light that sparkles as if it were made of gemstones.",
+                generation: 4,
+                target: "single-opponent"
+            },
+            {
+                id: 16,
+                name: "Shadow Claw",
+                type: "ghost",
+                category: "physical",
+                power: 70,
+                accuracy: 100,
+                pp: 15,
+                description: "The user slashes with a sharp claw made from shadows. Critical hits land more easily.",
+                generation: 4,
+                target: "single-opponent"
+            },
+            {
+                id: 17,
+                name: "Flash Cannon",
+                type: "steel",
+                category: "special",
+                power: 80,
+                accuracy: 100,
+                pp: 10,
+                description: "The user gathers all its light energy and releases it all at once. This may also lower the target's Sp. Def stat.",
+                generation: 4,
+                target: "single-opponent"
+            },
+
+            // ===== GENERASI 5 =====
+            {
+                id: 18,
+                name: "Fusion Bolt",
+                type: "electric",
+                category: "physical",
+                power: 100,
+                accuracy: 100,
+                pp: 5,
+                description: "The user throws down a giant thunderbolt. This move's power is increased when influenced by an enormous flame.",
+                generation: 5,
+                target: "single-opponent"
+            },
+            {
+                id: 19,
+                name: "Blue Flare",
+                type: "fire",
+                category: "special",
+                power: 130,
+                accuracy: 85,
+                pp: 5,
+                description: "The user attacks by engulfing the target in an intense, yet beautiful, blue flame. This may also leave the target with a burn.",
+                generation: 5,
+                target: "single-opponent"
+            },
+
+            // ===== GENERASI 6 =====
+            {
+                id: 20,
+                name: "Moonblast",
+                type: "fairy",
+                category: "special",
+                power: 95,
+                accuracy: 100,
+                pp: 15,
+                description: "Borrowing the power of the moon, the user attacks the target. This may also lower the target's Sp. Atk stat.",
+                generation: 6,
+                target: "single-opponent"
+            },
+            {
+                id: 21,
+                name: "Dazzling Gleam",
+                type: "fairy",
+                category: "special",
+                power: 80,
+                accuracy: 100,
+                pp: 10,
+                description: "The user damages opposing Pokémon by emitting a powerful flash.",
+                generation: 6,
+                target: "all-opponents"
+            },
+
+            // ===== GENERASI 7 =====
+            {
+                id: 22,
+                name: "Solar Blade",
+                type: "grass",
+                category: "physical",
+                power: 125,
+                accuracy: 100,
+                pp: 10,
+                description: "In this two-turn attack, the user gathers light and fills a blade with the light's energy, attacking the target on the next turn.",
+                generation: 7,
+                target: "single-opponent"
+            },
+            {
+                id: 23,
+                name: "Shadow Bone",
+                type: "ghost",
+                category: "physical",
+                power: 85,
+                accuracy: 100,
+                pp: 10,
+                description: "The user attacks by beating the target with a bone that contains a spirit. This may also lower the target's Defense stat.",
+                generation: 7,
+                target: "single-opponent"
+            },
+
+            // ===== GENERASI 8 =====
+            {
+                id: 24,
+                name: "Pyro Ball",
+                type: "fire",
+                category: "physical",
+                power: 120,
+                accuracy: 90,
+                pp: 5,
+                description: "The user attacks by igniting a small stone and launching it as a fiery ball at the target. This may also leave the target with a burn.",
+                generation: 8,
+                target: "single-opponent"
+            },
+            {
+                id: 25,
+                name: "G-Max Wildfire",
+                type: "fire",
+                category: "special",
+                power: null,
+                accuracy: null,
+                pp: 5,
+                description: "A Fire-type attack that Gigantamax Charizard use. This move continues to deal damage to opponents for four turns.",
+                generation: 8,
+                target: "all-opponents"
+            },
+
+            // ===== GENERASI 9 =====
+            {
+                id: 26,
+                name: "Aqua Step",
+                type: "water",
+                category: "physical",
+                power: 80,
+                accuracy: 100,
+                pp: 10,
+                description: "The user toys with the target and attacks while stepping lightly. This boosts the user's Speed stat.",
+                generation: 9,
+                target: "single-opponent"
+            },
+            {
+                id: 27,
+                name: "Raging Fury",
+                type: "fire",
+                category: "physical",
+                power: 120,
+                accuracy: 100,
+                pp: 10,
+                description: "The user rampages and attacks for two to three turns. The user then becomes confused.",
+                generation: 9,
+                target: "random-opponent"
+            },
+            {
+                id: 28,
+                name: "Torch Song",
+                type: "fire",
+                category: "special",
+                power: 80,
+                accuracy: 100,
+                pp: 10,
+                description: "The user blows out a blaze of fire, singing with all its might. This also boosts the user's Sp. Atk stat.",
+                generation: 9,
+                target: "single-opponent"
+            },
+            {
+                id: 29,
+                name: "Wave Crash",
+                type: "water",
+                category: "physical",
+                power: 120,
+                accuracy: 100,
+                pp: 10,
+                description: "The user shrouds itself in water and slams into the target with its whole body to inflict damage. This also damages the user quite a lot.",
+                generation: 9,
+                target: "single-opponent"
+            }
+        ];
+
+        // Fungsi untuk menampilkan semua moves
+        function displayMoves(moves) {
+            const container = document.getElementById('movesContainer');
+            container.innerHTML = '';
+            
+            if (moves.length === 0) {
+                container.innerHTML = '<div class="no-results">🚫 Tidak ada move yang sesuai dengan filter yang dipilih</div>';
+                return;
+            }
+            
+            moves.forEach(move => {
+                const moveCard = document.createElement('div');
+                moveCard.className = 'move-card';
+                
+                // Format power, accuracy, dan PP
+                const powerDisplay = move.power !== null ? move.power : '-';
+                const accuracyDisplay = move.accuracy !== null ? `${move.accuracy}%` : '-';
+                const ppDisplay = move.pp;
+                
+                // Warna berdasarkan kategori
+                const categoryClass = `category-${move.category}`;
+                
+                moveCard.innerHTML = `
+                    <div class="move-header">
+                        <div class="move-name">${move.name}</div>
+                        <div class="move-gen">Gen ${move.generation}</div>
+                    </div>
+                    
+                    <div>
+                        <span class="move-type type-${move.type}">${move.type.toUpperCase()}</span>
+                        <span class="move-type ${categoryClass}">${move.category.toUpperCase()}</span>
+                    </div>
+                    
+                    <div class="move-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Power</div>
+                            <div class="detail-value">${powerDisplay}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Accuracy</div>
+                            <div class="detail-value">${accuracyDisplay}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">PP</div>
+                            <div class="detail-value">${ppDisplay}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Target</div>
+                            <div class="detail-value">${formatTarget(move.target)}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="move-description">
+                        ${move.description}
+                    </div>
+                `;
+                
+                container.appendChild(moveCard);
+            });
+            
+            // Update stats
+            document.getElementById('totalMoves').textContent = pokemonMoves.length;
+            document.getElementById('displayedMoves').textContent = moves.length;
+        }
+
+        // Fungsi untuk memformat target
+        function formatTarget(target) {
+            const targetMap = {
+                'single-opponent': 'Single Opponent',
+                'all-opponents': 'All Opponents',
+                'random-opponent': 'Random Opponent'
+            };
+            return targetMap[target] || target;
+        }
+
+        // Fungsi untuk memfilter moves
+        function filterMoves() {
+            const genFilter = document.getElementById('genFilter').value;
+            const typeFilter = document.getElementById('typeFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const searchFilter = document.getElementById('searchFilter').value.toLowerCase();
+            
+            let filteredMoves = pokemonMoves;
+            
+            // Filter berdasarkan generasi
+            if (genFilter !== 'all') {
+                filteredMoves = filteredMoves.filter(move => move.generation.toString() === genFilter);
+            }
+            
+            // Filter berdasarkan tipe
+            if (typeFilter !== 'all') {
+                filteredMoves = filteredMoves.filter(move => move.type === typeFilter);
+            }
+            
+            // Filter berdasarkan kategori
+            if (categoryFilter !== 'all') {
+                filteredMoves = filteredMoves.filter(move => move.category === categoryFilter);
+            }
+            
+            // Filter berdasarkan pencarian
+            if (searchFilter) {
+                filteredMoves = filteredMoves.filter(move => 
+                    move.name.toLowerCase().includes(searchFilter) || 
+                    move.description.toLowerCase().includes(searchFilter)
+                );
+            }
+            
+            // Urutkan berdasarkan generasi lalu ID
+            filteredMoves.sort((a, b) => {
+                if (a.generation !== b.generation) {
+                    return a.generation - b.generation;
+                }
+                return a.id - b.id;
+            });
+            
+            displayMoves(filteredMoves);
+        }
+
+        // Event listeners untuk filter
+        document.getElementById('genFilter').addEventListener('change', filterMoves);
+        document.getElementById('typeFilter').addEventListener('change', filterMoves);
+        document.getElementById('categoryFilter').addEventListener('change', filterMoves);
+        document.getElementById('searchFilter').addEventListener('input', filterMoves);
+
+        // Inisialisasi saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            displayMoves(pokemonMoves);
+        });
+    </script>
+</body>
+</html>
